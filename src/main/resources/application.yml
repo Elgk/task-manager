@@ -1,0 +1,16 @@
+server:
+  port: 8189
+  shutdown: graceful
+
+spring:
+  application:
+    name: task-manager
+  flyway:
+    locations: classpath:/db/migration
+    url: jdbc:postgresql://localhost:5432/tasks_manager_db
+    user: user
+    password: password
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tasks_manager_db
+    username: user
+    password: password

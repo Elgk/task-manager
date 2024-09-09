@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  task-manager:
+    container_name: "task-manager"
+    ports:
+      - 8189:8189
+    depends_on:
+      postgres:
+        condition: service_started
+    build:
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: task-manager
+    environment:
+      - BPL_JVM_THREAD_COUNT=50
+    networks:
+      - internal
+
+  postgres:
+    image: "postgres:15"
+    container_name: "desnitsa_postgres"
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=tasks_manager_db
+    healthcheck:
+      test: pg_isready -d tasks_manager_db -U user
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+    volumes:
+      - ./docker_postgres:/var/lib/postgresql/data
+
+  flyway:
+    image: boxfuse/flyway
+    command: -url=jdbc:postgresql://postgres:5432/postgres -schema=public -user=user -password=password -connectRetries=30 migrate
+    volumes:
+      - ./flyway:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_started

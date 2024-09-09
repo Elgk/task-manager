@@ -1,0 +1,83 @@
+import org.flywaydb.gradle.task.FlywayMigrateTask
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.avast.gradle.docker-compose' version '0.17.6'
+	id 'org.flywaydb.flyway' version '8.5.13'
+}
+
+/*
+ext {
+	flywayUrl = "jdbc:postgresql://localhost:5432/tasks_manager_db"
+	flywayUser = "user"
+	flywayPassword = "password"
+	dbUser = "user"
+	dbName = "tasks_manager_db"
+}
+*/
+
+group = 'ru.skillbox'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	apply from: "$rootDir/dependencies.gradle"
+}
+
+apply plugin: 'docker-compose'
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	implementation "io.jsonwebtoken:jjwt-api"
+	implementation "io.jsonwebtoken:jjwt-impl"
+	implementation "io.jsonwebtoken:jjwt-jackson"
+	implementation "javax.xml.bind:jaxb-api"
+	implementation 'org.postgresql:postgresql'
+	implementation 'org.flywaydb:flyway-core'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+/*tasks.register("migrateLocal", FlywayMigrateTask) {
+	dependsOn tasks.getByPath(":${project.name}:composeDB")
+	url = flywayUrl
+	user = flywayUser
+	password = flywayPassword
+}
+
+tasks.register("composeDB")
+dockerCompose {
+	localDB {
+		projectName = "task_manager_local_dbs"
+		useComposeFiles = ["compose-db.yml".toString()]
+		environment.put 'POSTGRES_USER', dbUser
+		environment.put 'POSTGRES_PASSWORD', 'password'
+		environment.put 'POSTGRES_DATABASE_NAME', dbName
+		stopContainers = false
+		removeContainers = false
+		isRequiredBy(tasks.getByPath('composeDB'))
+	}
+}*/
